@@ -12,7 +12,8 @@ class DvClinetDispatcher(WebSocketMsgHandler):
         self.sub = sub
         WebSocketMsgHandler.__init__(self)
 
-    def on_client_open(self):
+    def on_client_open(self, client):
+        WebSocketMsgHandler.on_client_open(self,client)
         log.debug('open')
 
     def on_client_message(self, msg):
