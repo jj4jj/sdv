@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>charts test</title>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="chart" style="height:400px"></div>
+    <!-- ECharts单文件引入 -->
+    <script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
+    <script src="wsc"></script>
+    <script src="charts.js"></script>
+    <script type="text/javascript">
+    //ready
+    var area = document.getElementById('chart');
+    var rtc = new WSClient({uri: 'ws://192.168.1.202:8888/rt/', heart_beat_time: 30000});
+    var chart = new DVChart({wsc: rtc, area: area});
+    chart.test();
+    //chart.request_charts('static','line',{})
+    </script>
+</body>

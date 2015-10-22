@@ -34,23 +34,23 @@ class WebSocketMsgHandler():
 
 
 class WebSocketServer(Thread):
-    def __init__(self, uri, um, host, port=8888):
+    def __init__(self, uri, dispatcher, host=None, port=8888):
         Thread.__init__(self)
         #############################################
         self.uri = uri
-        self.um = um
+        self.dispatcher = dispatcher
         self.port = port
         self.host = host
 
         class _WebSocketServerHandlerProxy(tornado.websocket.WebSocketHandler):
             def open(self):
-                um.on_client_open(self)
+                dispatcher.on_client_open(self)
 
             def on_message(self, message):
-                um.on_client_message(message)
+                dispatcher.on_client_message(message)
 
             def on_close(self):
-                um.on_client_close()
+                dispatcher.on_client_close()
 
             def check_origin(self, origin):
                 return True
