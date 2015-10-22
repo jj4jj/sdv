@@ -5,8 +5,6 @@ import config
 import sys
 
 
-#caller info
-#file,no,funcname
 def get_function_frame_info(depth=1):
     frame = sys._getframe(depth)
     code = frame.f_code

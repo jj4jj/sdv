@@ -2,6 +2,7 @@
 import redis
 import log
 from threading import Thread
+import threading
 
 class SubscribeManager:
     pass
@@ -9,7 +10,7 @@ class SubscribeManager:
         self.listenner = {}
         rc = redis.Redis(host,port,dbid)
         self.ps = rc.pubsub()
-        self.lock = Thread.Lock()
+        self.lock = threading.Lock()
         pass
 
     def subscribe(self, channel, cb):

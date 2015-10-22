@@ -26,11 +26,14 @@ class WebSocketMsgHandler():
 
     def on_client_message(self, msg):
         log.debug('msg:'+msg)
-        self.write_message("echo:"+msg)
+        self.reply(msg)
 
     def on_client_close(self):
         log.debug('close')
         self.client = None
+
+    def reply(self, msg):
+        self.client.write_message(msg)
 
 
 class WebSocketServer(Thread):
@@ -67,6 +70,15 @@ class WebSocketServer(Thread):
 
 if __name__ == "__main__":
     ws = WebSocketServer('', WebSocketMsgHandler())
+    ws.setDaemon(True)
+    import signal
+    def stop_ws():
+        ws.stop()
+
+    signal.signal(signal.SIGINT, stop_ws)
+    import sys
+    signal.signal(signal.SIGTERM, sys.exit)
     ws.start()
     ws.join()
+
 

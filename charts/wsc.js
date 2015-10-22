@@ -84,7 +84,7 @@ function WSClient(options)
                         {
                             oldfunc();
                         }
-                        func();
+                        func()
                     }
                 }
                 else
