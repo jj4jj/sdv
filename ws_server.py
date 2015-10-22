@@ -32,8 +32,9 @@ class WebSocketMsgHandler():
         log.debug('close')
         self.client = None
 
-    def reply(self, msg):
-        self.client.write_message(msg)
+    def reply(self, mtype, data):
+        jmsg = json.dumps({'type':mtype, 'data':data})
+        self.client.write_message(jmsg)
 
 
 class WebSocketServer(Thread):
@@ -63,6 +64,7 @@ class WebSocketServer(Thread):
         self.io = tornado.ioloop.IOLoop.current()
 
     def stop(self):
+        self.io.stop()
         pass
 
     def run(self):
