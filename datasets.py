@@ -39,7 +39,9 @@ class DBChartAgent:
         sql = sql % (key, sid, limit)
         #print(sql)
         self.cursor.execute(sql)
-        return self.cursor.fetchall()
+        result = list(self.cursor.fetchall())
+        result.reverse()
+        return result
 
     def setKey(self, key, sid, svalue, ivalue=0):
         sql = """

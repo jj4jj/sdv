@@ -44,16 +44,12 @@ myChart.addData([
 
 
 class ChartAgent:
-    def __init__(self, client, chart_id):
+    def __init__(self, client, chart_id, chart_name):
         #{u'chart_id': u'chart', u'type': u'line', u'mode': u'static'}
         self.client = client
         self.chart_id = chart_id
+        self.chart_name = chart_name
         self.chart = {}
-
-    def __call__(self, data):
-        #data->[k:v], update .
-        self.update()
-        pass
 
     def _draw(self, titles, names, types, datasets):
         self.chart['legends'] = titles
@@ -74,9 +70,10 @@ class ChartAgent:
         self.chart['series'] = series
         ####################################################
         msg = {'type': 'render',
-               'update': 'static',
+               'mode': 'static',
                'chart': self.chart,
-               'chart_id': self.chart_id}
+               'chart_id': self.chart_id,
+               'chart_name': self.chart_name}
         self.client.reply('charts', msg)
 
     def draw_line(self, title, name, dataset):
@@ -99,9 +96,6 @@ class ChartAgent:
     def data(self):
         return self.chart
 
-    def add_point(self, chart_id, point):
-        self.updates_queue.append((chart_id, point,))
-
     def format_series(self, points):
         series = []
         for i in xrange(0, len(points)):
@@ -109,17 +103,14 @@ class ChartAgent:
         return {'series': series}
 
     #send client addition
-    def update(self):
-        try:
-            point = self.updates_queue.pop(0)
-        except IndexError:
-            return
-        ##render points
+    def update(self, point):
+        log.debug('update point:'+str(point))
         update_data = self.format_series([point])
         msg = {'type': 'render',
-               'update': 'dynamic',
+               'mode': 'dynamic',
                'chart': update_data,
-               'chart_id': self.chart_id}
+               'chart_id': self.chart_id,
+               'chart_name': self.chart_name}
         self.client.reply('charts', msg)
 
 

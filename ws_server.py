@@ -34,6 +34,7 @@ class WebSocketMsgHandler():
 
     def reply(self, mtype, data):
         jmsg = json.dumps({'type':mtype, 'data':data})
+        log.debug('reply msg:'+jmsg)
         self.client.write_message(jmsg)
 
 
@@ -47,11 +48,15 @@ class WebSocketServer(Thread):
         self.host = host
 
         class _WebSocketServerHandlerProxy(tornado.websocket.WebSocketHandler):
+            hb_msg = json.dumps({u'type': u'pong', u'data': u'-*-heart-beat-*-'})
             def open(self):
                 dispatcher.on_client_open(self)
-
             def on_message(self, message):
-                dispatcher.on_client_message(message)
+                objmsg = json.loads(message)
+                if objmsg['type'] == 'ping':
+                    self.write_message(self.hb_msg)
+                else:
+                   dispatcher.on_client_message(objmsg)
 
             def on_close(self):
                 dispatcher.on_client_close()

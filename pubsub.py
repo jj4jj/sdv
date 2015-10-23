@@ -3,6 +3,7 @@ import redis
 import log
 from threading import Thread
 import threading
+import json
 
 class SubscribeManager:
     pass
@@ -16,16 +17,16 @@ class SubscribeManager:
     def subscribe(self, channel, cb):
         with self.lock:
             if self.listenner.has_key(channel):
-                self.listenner[channel].put(cb)
+                self.listenner[channel].add(cb)
             else:
-                self.listenner[channel] = [cb]
+                self.listenner[channel] = set([cb])
 
             self.ps.subscribe([channel])
 
     def unsubscribe(self, channel, cb):
         with self.lock:
-            self.listenner[channel].pop(cb)
-            if len(self.listenner[channel] == 0):
+            self.listenner[channel].remove(cb)
+            if len(self.listenner[channel]) == 0:
                 self.ps.unsubscribe(channel)
 
     def poll(self):
@@ -34,19 +35,20 @@ class SubscribeManager:
             if item['type'] == 'message':
                 channel = item['channel']
                 data = item['data']
-                log.debug("recv msg data")
                 with self.lock:
                     if self.listenner.has_key(channel):
                         for cb in self.listenner[channel]:
-                            cb(data)
+                            jdic = json.loads(data)
+                            cb(jdic)
 
 
 class Publisher:
     def __init__(self, host, port, dbid):
-        selfrc = redis.Redis(host,port,dbid)
+        self.rc = redis.Redis(host,port,dbid)
         pass
 
-    def publish(self, channel, msg):
-        self.rc.publish(channel, msg)
+    def publish(self, channel, ojmsg):
+        jmsg = json.dumps(ojmsg)
+        self.rc.publish(channel, jmsg)
 
 

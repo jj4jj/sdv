@@ -7,6 +7,41 @@ var extend_object = function(o, n, override){
        }
    }
 };
+Date.prototype.pattern=function(fmt) {
+    var o = {
+    "M+" : this.getMonth()+1, //月份
+    "d+" : this.getDate(), //日
+    "h+" : this.getHours()%12 == 0 ? 12 : this.getHours()%12, //小时
+    "H+" : this.getHours(), //小时
+    "m+" : this.getMinutes(), //分
+    "s+" : this.getSeconds(), //秒
+    "q+" : Math.floor((this.getMonth()+3)/3), //季度
+    "S" : this.getMilliseconds() //毫秒
+    };
+    var week = {
+    "0" : "/u65e5",
+    "1" : "/u4e00",
+    "2" : "/u4e8c",
+    "3" : "/u4e09",
+    "4" : "/u56db",
+    "5" : "/u4e94",
+    "6" : "/u516d"
+    };
+    if(/(y+)/.test(fmt)){
+        fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+    }
+    if(/(E+)/.test(fmt)){
+        fmt=fmt.replace(RegExp.$1, ((RegExp.$1.length>1) ? (RegExp.$1.length>2 ? "/u661f/u671f" : "/u5468") : "")+week[this.getDay()+""]);
+    }
+    for(var k in o){
+        if(new RegExp("("+ k +")").test(fmt)){
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+        }
+    }
+    return fmt;
+}
+
+
 
 //xAxis [data], yAxis[data] legens[title] series[customizing]
 var echarts_init = function(area, xAxis, yAxis, legends, series){
@@ -135,15 +170,25 @@ var  render_charts = function(area, data)
         console.error('data type is error :'+data.type);
         return ;
     }
-
-    if(data.update == 'static')
+    var dvchart = area.mychart
+    if(dvchart) {
+        for (var i in dvchart.charts_filters){
+            var f = dvchart.charts_filters[i]
+            if (f.chart_name != data.chart_name){
+                continue;
+            }
+            data.chart = f.filter(data.mode, data.chart)
+            break;
+        }
+    }
+    if(data.mode == 'static')
     {
         echarts_init(area, data.chart.xAxis,
                                             data.chart.yAxis,
                                             data.chart.legends,
                                             data.chart.series);
     }
-    else if(data.update == 'dynamic')
+    else if(data.mode == 'dynamic')
     {
         //replace
         echarts_update(area, data.chart.series);
@@ -311,10 +356,11 @@ var DVChart = function(options){
     options.wsc.add_listener('charts', mycharts_msg_handler(options.area.id));
 
     //mode:static,dynamic; chart_name:..,req:cb
-    function request_charts(mode, chart_name, req){
+    function request_charts(mode, chart_name, req, filter){
         var request = { chart_name: chart_name, mode: mode, chart_id: this.area_id};
         extend_object(request, req, false);
         options.wsc.send('charts', request);
+        this.add_filter(chart_name, filter)
     }
 
     var ret = {opt: options ,
@@ -322,6 +368,7 @@ var DVChart = function(options){
                request: request_charts,
                area_id: options.area.id,
                chart_msg_handlers: [{type: 'render', handler: render_charts},],
+               charts_filters : [{chart_name:'', filter: function(data){return data;}},],
                add_handler: function(type, handler){
                    for (i in this.chart_msg_handlers)
                    {
@@ -332,6 +379,15 @@ var DVChart = function(options){
                        }
                    }
                    this.chart_msg_handlers.push({type: type, handler: handler});
+               },
+               add_filter: function(chart_name, filter){
+                    for(i in this.charts_filters){
+                        if(this.charts_filters[i].chart_name == chart_name){
+                            this.charts_filters[i].filter = filter
+                            return ;
+                        }
+                    }
+                    this.charts_filters.push({chart_name: chart_name, filter:filter});
                },
                on_chart_msg: function(chart_area, charts_data){
                    for (i in this.chart_msg_handlers)

@@ -4,9 +4,7 @@
     <title>charts test</title>
 </head>
 <body>
-    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
     <div id="chart" style="height:400px"></div>
-    <!-- ECharts单文件引入 -->
     <script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
     <script src="wsc.js"></script>
     <script src="charts.js"></script>
@@ -14,12 +12,28 @@
     //ready
     var area = document.getElementById('chart');
     //http://192.168.205.136/
-    //var rtc = new WSClient({uri: 'ws://192.168.205.136:8888/rt/', heart_beat_time: 30000});
-    var rtc = new WSClient({uri: 'ws://192.168.1.202:8888/rt/', heart_beat_time: 30000});
+    var rtc = new WSClient({uri: 'ws://192.168.205.136:8888/rt/', heart_beat_time: 300000});
+    //var rtc = new WSClient({uri: 'ws://192.168.1.202:8888/rt/', heart_beat_time: 300000});
     var chart = new DVChart({wsc: rtc, area: area});
     rtc.onready(function(){
         console.log("socket ready , send request ....")
-        chart.request('static','online',{'limit':20,'server':"2003" })
+        function filter(mode, chart){
+            var ret = chart;
+            if(mode == 'static'){
+                for(var i in ret.xAxis[0].data){
+                    var utm = ret.xAxis[0].data[i]
+                    ret.xAxis[0].data[i] = new Date(utm).pattern('MM-dd hh:mm:ss')
+                }
+            }
+            else {//dynamic :series:[[0, 4685, false, true, 1445634279619]]
+                for(var i in ret.series){
+                    var utm = ret.series[i][4]
+                    ret.series[i][4] = new Date(utm).pattern('MM-dd hh:mm:ss')
+                }
+            }
+            return ret;
+        }
+        chart.request('dynamic','online',{'limit':10,'server':"2003" }, filter)
     });
     //chart.test();
     </script>

@@ -60,7 +60,9 @@ function WSClient(options)
                         handler:function(msg){
                             console.log('dummy msg received!');
                         }
-                      },
+                      },{type:'pong', handler:function(msg){
+                            console.log('ping-pong');
+                        }},
             ],
             add_listener :function(type, handler){
                 this.listener.push({type: type, handler: handler});
