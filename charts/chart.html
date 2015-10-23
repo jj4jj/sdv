@@ -14,12 +14,12 @@
     //ready
     var area = document.getElementById('chart');
     //http://192.168.205.136/
-    var rtc = new WSClient({uri: 'ws://192.168.205.136:8888/rt/', heart_beat_time: 30000});
-    //var rtc = new WSClient({uri: 'ws://192.168.1.202:8888/rt/', heart_beat_time: 30000});
+    //var rtc = new WSClient({uri: 'ws://192.168.205.136:8888/rt/', heart_beat_time: 30000});
+    var rtc = new WSClient({uri: 'ws://192.168.1.202:8888/rt/', heart_beat_time: 30000});
     var chart = new DVChart({wsc: rtc, area: area});
     rtc.onready(function(){
         console.log("socket ready , send request ....")
-        chart.request('static','line',{})
+        chart.request('static','online',{'limit':20,'server':"2003" })
     });
     //chart.test();
     </script>

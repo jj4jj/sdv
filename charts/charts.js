@@ -294,25 +294,25 @@ var DVChart = function(options){
         throw 'ws client not found';
     }
     var mycharts_msg_handler = function(chart_id){
-        var dispatcher = function(msg){
+        var dispatcher = function(charts_data){
             //get mychart
-            chart_area = document.getElementById(msg.chart_id);
-            if(msg.chart_id != chart_id)
+            chart_area = document.getElementById(charts_data.chart_id);
+            if(charts_data.chart_id != chart_id)
             {
                 return;
             }
-            console.log('mycharts msg received !' + msg);
+            console.log('mycharts msg received !' + charts_data);
             var mychart = chart_area.mychart;
-            mychart.on_chart_msg(chart_area, msg);
+            mychart.on_chart_msg(chart_area, charts_data);
         };
         return dispatcher;
     };
     //add msg handler
-    options.wsc.add_listener('chart', mycharts_msg_handler(options.area.id));
+    options.wsc.add_listener('charts', mycharts_msg_handler(options.area.id));
 
-    //mode:static,dynamic; type:k/bar/...,req:cb
-    function request_charts(mode, type, req){
-        var request = { type: type, mode: mode, chart_id: this.area_id};
+    //mode:static,dynamic; chart_name:..,req:cb
+    function request_charts(mode, chart_name, req){
+        var request = { chart_name: chart_name, mode: mode, chart_id: this.area_id};
         extend_object(request, req, false);
         options.wsc.send('charts', request);
     }
@@ -333,12 +333,12 @@ var DVChart = function(options){
                    }
                    this.chart_msg_handlers.push({type: type, handler: handler});
                },
-               on_chart_msg: function(chart_area, msg){
+               on_chart_msg: function(chart_area, charts_data){
                    for (i in this.chart_msg_handlers)
                    {
-                       if(this.chart_msg_handlers[i].type == msg['type'])
+                       if(this.chart_msg_handlers[i].type == charts_data['type'])
                        {
-                           this.chart_msg_handlers[i].handler(chart_area, msg);
+                           this.chart_msg_handlers[i].handler(chart_area, charts_data);
                        }
                    }
                }};

@@ -80,7 +80,7 @@ class ChartAgent:
         self.client.reply('charts', msg)
 
     def draw_line(self, title, name, dataset):
-        self._draw(self.chart_id, [title], [name], ['line'], [dataset])
+        self._draw([title], [name], ['line'], [dataset])
 
 
     def draw_ohlc(self, title, name, dataset):
@@ -88,13 +88,13 @@ class ChartAgent:
         :param dataset: [time open high low close]
         :return:
         """
-        self._draw(self.chart_id, [title], [name], ['k'], [dataset])
+        self._draw([title], [name], ['k'], [dataset])
 
     def draw_bar(self,title, name, dataset):
-        self._draw(self.chart_id, [title], [name], ['bar'], [dataset])
+        self._draw([title], [name], ['bar'], [dataset])
 
     def draw_scatter_point(self, title, name, dataset):
-        self._draw(self.chart_id, [title], [name], ['scatter'], [dataset])
+        self._draw([title], [name], ['scatter'], [dataset])
 
     def data(self):
         return self.chart

@@ -23,12 +23,13 @@ class DvClinetDispatcher(WebSocketMsgHandler):
         log.debug('open')
 
     def handle_charts(self, data):
-        #{u'chart_id': u'chart', u'type': u'line', u'mode': u'static'}
+        #{u'chart_id': u'chart', u'chart_name': u'online', u'mode': u'static', limit:20, server:'2003'}
         ca = ChartAgent(self, data['chart_id'])
-        channel = data['type']
+        channel = data['chart_name']
+        limit = data['limit']
+        server = data['server'];
         if data['mode'] == 'static':
-            latest = self.dbc.getLatestISK(channel, 10)
-            log.debug(latest)
+            latest = self.dbc.getLatestISK(channel, server, limit)
             ca.draw_line(channel, channel, latest)
             pass
         else:
