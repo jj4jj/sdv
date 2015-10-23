@@ -9,8 +9,8 @@ REDIS_MQ_DB = 0
 
 DB_HOST = '127.0.0.1'
 DB_PORT = 3306
-DB_USER = 'gsgame'
-DB_PASSWD = 'gsgame'
+DB_USER = 'test'
+DB_PASSWD = 'test'
 DB_NAME = 'test'
 
 LOG_FILE = 'sdv.log'
