@@ -51,8 +51,8 @@ def main():
     log.set_level(config.LOG_LEVEL)
 
 
-    sub = SubscribeManager(config.REDIS_MQ_HOST,config.DB_PORT, config.REDIS_MQ_PORT,config.REDIS_MQ_DB)
-    dbc = DBChartAgent(config.DB_HOST, config.DB_USER, config.DB_PASSWD, config.DB_NAME)
+    sub = SubscribeManager(config.REDIS_MQ_HOST,config.REDIS_MQ_PORT,config.REDIS_MQ_DB)
+    dbc = DBChartAgent(config.DB_HOST, config.DB_PORT, config.DB_USER, config.DB_PASSWD, config.DB_NAME)
     wss = WebSocketServer(config.WSS_URI, DvClinetDispatcher(sub, dbc), host=config.WSS_HOST, port=config.WSS_PORT)
 
     wss.start()
