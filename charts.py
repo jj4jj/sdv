@@ -44,12 +44,16 @@ myChart.addData([
 
 
 class ChartAgent:
-    def __init__(self, client, chart_id, chart_name):
+    def __init__(self, client, chart_id, chart_name, line_style):
         #{u'chart_id': u'chart', u'type': u'line', u'mode': u'static'}
         self.client = client
         self.chart_id = chart_id
         self.chart_name = chart_name
+        self.line_style = line_style
         self.chart = {}
+
+    def render(self, title, name, dataset):
+        self._draw([title], [name], [self.line_style], [dataset])
 
     def _draw(self, titles, names, types, datasets):
         self.chart['legends'] = titles
@@ -79,7 +83,6 @@ class ChartAgent:
     def draw_line(self, title, name, dataset):
         self._draw([title], [name], ['line'], [dataset])
 
-
     def draw_ohlc(self, title, name, dataset):
         """
         :param dataset: [time open high low close]
@@ -99,7 +102,14 @@ class ChartAgent:
     def format_series(self, points):
         series = []
         for i in xrange(0, len(points)):
-            series.append([i, points[i][1], False, True, points[i][0]])
+            """
+                    1,        // 系列索引
+                    lastData, // 新增数据
+                    false,    // 新增数据是否从队列头部插入
+                    false,    // 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头
+                    axisData  // 坐标轴标签
+            """
+            series.append([i, points[i][1], False, False, points[i][0]])
         return {'series': series}
 
     #send client addition

@@ -31,15 +31,16 @@ class DvClinetDispatcher(WebSocketMsgHandler):
         chart_name = data['chart_name']
         limit = data['limit']
         server = data['server']
+        linestyle = data['line'];
         channel = chart_name
         latest = self.dbc.getLatestISK(channel, server, limit)
-        ca = ChartAgent(self, data['chart_id'], channel)
+        ca = ChartAgent(self, data['chart_id'], chart_name, linestyle)
         if data['mode'] == 'static':
-            ca.draw_line(channel, channel, latest)
+            ca.render(channel, channel, latest)
             pass
         else:
             #dynamic data
-            ca.draw_line(channel, channel, latest)
+            ca.render(channel, channel, latest)
             current_value = list(latest[-1])   #time,ival,sval
             def on_recv_channel_msg(data):
                 if server != data['server']:
@@ -79,9 +80,11 @@ def main():
     def test_push_online():
         dbc.createKey("online")
         pub = Publisher(config.REDIS_MQ_HOST, config.REDIS_MQ_PORT, config.REDIS_MQ_DB)
+        import random
         while True:
-            dbc.incKey("online","2003", 2)
-            pub.publish('online', {'server':'2003', "op":"inc", "value":1, "time": datasets.current_ms()})
+            add = random.randint(-100,100);
+            dbc.incKey("online","2003", add)
+            pub.publish('online', {'server':'2003', "op":"inc", "value":add, "time": datasets.current_ms()})
             time.sleep(1)
 
     tester = Thread(target=test_push_online)
